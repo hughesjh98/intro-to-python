@@ -27,11 +27,10 @@ def search_ingredient(data):
         
     else:
         for recipe in data['recipes_list']:
-            for recipe_ing in recipe['Ingredients']:
-                if recipe_ing == ingredient_search:
+                if ingredient_search in recipe['Ingredients']:
                     print('\nThe following recipe includes the following ingredients')
                     print('--------------------------')
-                    print(display_recipe(recipe))
+                    display_recipe(recipe)
 
 
 filename = input("please enter the filename with your recipes -") + ".bin"

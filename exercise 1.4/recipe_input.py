@@ -30,6 +30,7 @@ all_ingredients = []
 recipes_list = []
 
 filename = input("please enter a filename with your recipes -") + ".bin"
+data = { 'recipes_list':[], 'all_ingredients':[] } 
 
 try:
     recipes_file = open(filename, 'rb')
@@ -37,11 +38,9 @@ try:
     
 except FileNotFoundError:
     print('file not found. creating new file')   
-    data = { 'recipes_list':[], 'all_ingredients':[] } 
     
 except:
     print('unexpected error. creating new file')
-    data = { 'recipes_list':[], 'all_ingredients':[] } 
     
 else:
     recipes_file.close()
