@@ -74,7 +74,7 @@ class Recipe(object):
             difficulty_level = 'Hard'
         return difficulty_level
     
-    #check if the ingredient is in the ingredients
+    # check if the ingredient is in the ingredients
     def search_ingredient(self, ingredient, ingredients):
         try:
             if ingredient in ingredients:
@@ -82,7 +82,7 @@ class Recipe(object):
         except:
                  return False
     
-    #search the recipes_list by ingredient to display the recipes with that ingredient
+    # search the recipes_list by ingredient to display the recipes with that ingredient
     def recipe_search(self, recipes_list, ingredient):
         data = recipes_list
         search_term = ingredient 

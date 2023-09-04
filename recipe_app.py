@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 engine = create_engine("mysql://cf-python:password@localhost/task_database")
 
 Base = declarative_base()
-
+# 
 class Recipe(Base):
     __tablename__ = 'final_recipes_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
