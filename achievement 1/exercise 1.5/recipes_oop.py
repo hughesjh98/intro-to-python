@@ -76,20 +76,26 @@ class Recipe(object):
     
     # check if the ingredient is in the ingredients
     def search_ingredient(self, ingredient, ingredients):
-        try:
-            if ingredient in ingredients:
-                 return True
-        except:
-                 return False
-    
+
+        if ingredient in ingredients:
+            
+            return True
+        else:
+            
+            return False 
+            
     # search the recipes_list by ingredient to display the recipes with that ingredient
     def recipe_search(self, recipes_list, ingredient):
         data = recipes_list
         search_term = ingredient 
         
         for recipe in data:
+            
             if self.search_ingredient(search_term, recipe.ingredients):
                 print(recipe)
+            else:
+                return False
+            
     
     #view the attributes of a recipe
     def view_recipe(self):

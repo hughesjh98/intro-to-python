@@ -7,7 +7,8 @@ from sqlalchemy import create_engine
 engine = create_engine("mysql://cf-python:password@localhost/task_database")
 
 Base = declarative_base()
-# 
+
+# set up a class to create a table and accept 
 class Recipe(Base):
     __tablename__ = 'final_recipes_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -17,7 +18,7 @@ class Recipe(Base):
     difficulty = Column(String(20))
 
     def __repr__(self):
-        return "<Recipe(id={self.id}, name='{self.name}', difficulty='{self.difficulty}')>"
+        return f"<Recipe(id={self.id}, name='{self.name}', difficulty='{self.difficulty}')>"
 
     def __str__(self):   
       output = "\nName: " + str(self.name) + \
@@ -31,7 +32,7 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-
+# this method will take the cooking_time and ingredients and calculate the difficulty
 def calc_difficulty(cooking_time, recipe_ingredients):
     
     if (cooking_time < 10) and (len(recipe_ingredients) <= 4):
@@ -45,16 +46,8 @@ def calc_difficulty(cooking_time, recipe_ingredients):
     else:
         print("sorry there was an error. please try again.")
     return difficulty_level
-    
-def return_ingredients_list():
-    
-    recipe_list = session.query(Recipe).all()
-    
-    for recipe in recipe_list:
-        recipe_ingredients_list = recipe.ingredients.split(",")
-        print(recipe.name, recipe_ingredients_list)
         
-        
+#create a new recipe and set up variable to check if the data is matching the mySQL database
 def create_recipe():
     
     recipe_ingredients = []
@@ -69,6 +62,7 @@ def create_recipe():
         if len(name) < 50:
             
             name_input_value = True
+            
         else:
             
             print("please enter a name with less than 50 characters")
@@ -102,6 +96,7 @@ def create_recipe():
         
     difficulty = calc_difficulty(int(cooking_time), recipe_ingredients)
     
+    #create an object to add the database 
     recipe_entry = Recipe(
         name = name,
         cooking_time = int(cooking_time),
@@ -114,10 +109,11 @@ def create_recipe():
     
     print("recipe has been added to the database")
     
-    
+#view all of the recipes and add them to a list
 def view_all_recipes():
     
     all_recipes = []
+    
     all_recipes = session.query(Recipe).all()
         
     if len(all_recipes) == 0:
@@ -131,7 +127,7 @@ def view_all_recipes():
     for recipe in all_recipes:
         print(recipe)
                 
-                
+    #search for recipes based on ingredients
 def search_by_ingredients():
     
     check_recipes = session.query(Recipe).count()
@@ -143,8 +139,9 @@ def search_by_ingredients():
         
     else:
         
+    # get all of the ingredients and store them in a list to loop over
         results = session.query(Recipe.ingredients).all()
-    #    print("results: ", results)
+
         all_ingredients = []
     
         for recipe_ingredient_lists in results:
@@ -152,7 +149,8 @@ def search_by_ingredients():
             for recipe_ingredients in recipe_ingredient_lists:
                 recipe_ingedients_split = recipe_ingredients.split(',') 
                 all_ingredients.extend(recipe_ingedients_split)
-        
+    
+    #create a list of dictionaries with key - ingredients to enumerate 
         all_ingredients = list(dict.fromkeys(all_ingredients))
         all_ingredients_list = list(enumerate(all_ingredients))
            
@@ -164,10 +162,10 @@ def search_by_ingredients():
             print(str(tup[0]+1) + "." + tup[1])
                
         try:
-            
+    #user is able to search for 1 or more ingredients
             ingredients_searched_num = input("\nEnter one or more numbers to select one or more ingredients - ")
             ingredients_list_searched = ingredients_searched_num.split(" " or "")
-
+    #store their searched ingredients in a list
             searched_ingredients_list = []
             for ingredients_searched_num in ingredients_list_searched:
                 ingredients_searched_index = int(ingredients_searched_num) - 1 
@@ -178,6 +176,7 @@ def search_by_ingredients():
             
             conditions = []
             
+    #for each ingredient, its stored in conditions to find recipes with the same ingredients
             for ingredient in searched_ingredients_list:
                 like_term = "%"+ingredient+"%"
             
@@ -197,7 +196,7 @@ def search_by_ingredients():
             for recipe in searched_recipes:
                 print(recipe)
            
-           
+    # update the recipe based on the users choices of name, cooking time, or ingredients
 def edit_recipes():
     
     check_recipes = session.query(Recipe).count()
@@ -208,6 +207,7 @@ def edit_recipes():
         return None
     else:
         
+        #print the recipes in the DB that can be updated
         results = session.query(Recipe).with_entities(Recipe.id,Recipe.name).all()
         print("recipes to update")
         print("-"*10)
@@ -218,6 +218,7 @@ def edit_recipes():
     
         recipe_id_to_edit = int(input("please enter the id of the recipe you'd like to update - "))
         
+        #store the recipes ID in a list to check if the id matches the users input
         recipe_id_tup_list = session.query(Recipe).with_entities(Recipe.id).all()
         recipe_id_list = []
         
@@ -233,35 +234,42 @@ def edit_recipes():
             print("sorry, couldn't find your recipe by id. please try again")
         else:
             
+            #get the recipes that matches the users input 
             recipe_to_edit = session.query(Recipe).filter(Recipe.id == recipe_id_to_edit).one()
             
-            print("\n you are about to edit the following recipe")
+            print("\n you are about to edit the following recipe - ")
             print(recipe_to_edit)       
             
-            column_for_update = int(input("\nEnter the data you want to update among 1. name, 2. cooking time and 3. ingredients: (select '1' or '2' or '3'): "))
+            column_for_update = int(input("\nEnter the data you want to update among 1. name, 2. cooking time 3. ingredients -  "))
             
-            updated_value = input("please enter the new value for your recipe")
+            updated_value = input("please enter the new value for your recipe - ")
             
+            #after the user picks a Recipe ID, column to update, and new value, use if,elif to update the recipe
             if column_for_update == 1:
-                session.query(Recipe).filter(Recipe.id == recipe_to_edit).update({Recipe.name: updated_value})
+                session.query(Recipe).filter(Recipe.id == recipe_id_to_edit).update({Recipe.name: updated_value})
                 print(column_for_update, " has been updated")
+                
                 
             elif column_for_update == 2:
                 session.query(Recipe).filter(Recipe.id == recipe_id_to_edit).update({Recipe.cooking_time: updated_value})
                 print(column_for_update, " has been updated")
-            
+                
+                
             elif column_for_update == 3:
                 session.query(Recipe).filter(Recipe.id == recipe_id_to_edit).update({Recipe.ingredients: updated_value})
-            
+                
+                
             else:
                 print("\noops, something happened. please try again")
             
-            update_difficulty = calc_difficulty(recipe_to_edit.cooking_time, recipe_to_edit.ingredients)
+            #update the difficulty
+            update_difficulty = calc_difficulty(int(recipe_to_edit.cooking_time), recipe_to_edit.ingredients)
             
             recipe_to_edit.difficulty = update_difficulty
             session.commit()
             print("Your Recipe has been updated")
             
+    #delete a recipe from the list
 def delete_recipe():
     
         check_recipes = session.query(Recipe).count()
@@ -273,6 +281,7 @@ def delete_recipe():
         
         else:
         
+        # get the name and id to be deleted
             recipe_list = session.query(Recipe).with_entities(Recipe.id, Recipe.name).all()
             print("list of recipes")
             print("-"*15)
@@ -329,3 +338,5 @@ def main_menu():
             print("bye bye!")
         else:
             print("please enter a valid number")
+            
+            
